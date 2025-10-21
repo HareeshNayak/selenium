@@ -1,0 +1,9 @@
+base_url: "https://www.demoblaze.com/index.html"
+browser: "chrome"
+
+credentials:
+  username: "hareesh"
+  password: "hareesh"
+
+report_path: "./reports/allure-results"
+screenshot_path: "./screenshots"
