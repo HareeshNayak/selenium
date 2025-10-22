@@ -11,37 +11,42 @@ from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 
 
+import os
 import tempfile
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
-import tempfile
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
+def get_driver(browser_name="chrome", headless=None):
+    """Initialize the browser driver."""
 
-def get_driver(browser_name="chrome", headless=False):
+    # Automatically detect CI environment
+    if headless is None:
+        headless = os.getenv("CI", "false").lower() == "true"
 
+    if browser_name.lower() == "chrome":
+        options = Options()
+        options.add_argument("--start-maximized")
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
+        options.add_argument("--disable-extensions")
+        options.add_argument("--disable-gpu")
 
-    options = Options()
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--window-size=1920,1080")
-    if headless:
-        options.add_argument("--headless=new")
+        if headless:
+            options.add_argument("--headless=new")
 
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+        tmp_user_data_dir = tempfile.mkdtemp()
+        options.add_argument(f"--user-data-dir={tmp_user_data_dir}")
+
+        driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    else:
+        raise Exception("Unsupported browser! Use 'chrome' only in CI for stability.")
+
     driver.get("https://www.demoblaze.com/")
-    driver.implicitly_wait(15)
+    driver.implicitly_wait(10)
     return driver
+
 
 
 

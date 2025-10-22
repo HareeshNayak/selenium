@@ -38,7 +38,7 @@ jobs:
 
       - name: Run Tests
         run: |
-          pytest --headless --maxfail=5 --disable-warnings -q --html=reports/report.html --self-contained-html
+          pytest --maxfail=5 --disable-warnings -q --html=reports/report.html --self-contained-html
       
 
       - name: Upload HTML report
