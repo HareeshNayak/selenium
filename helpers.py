@@ -17,38 +17,25 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 
-def get_driver(browser_name="chrome", headless=False):
-    """Initialize the browser driver."""
-    if browser_name.lower() == "chrome":
-        options = Options()
-        options.add_argument("--start-maximized")
-        options.add_argument("--no-sandbox")  # Important for CI
-        options.add_argument("--disable-dev-shm-usage")  # For CI environments
-        options.add_argument("--disable-extensions")
-        options.add_argument("--disable-gpu")
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
+import tempfile
 
-        # Use a temporary user data directory
-        tmp_user_data_dir = tempfile.mkdtemp()
-        options.add_argument(f"--user-data-dir={tmp_user_data_dir}")
+def get_driver():
+    options = Options()
+    options.add_argument("--headless")  # run without UI (important for GitHub)
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--window-size=1920,1080")
 
-        if headless:
-            options.add_argument("--headless=new")  # use new headless mode
-        driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    # ✅ Fix for GitHub Actions: use a unique temp directory for Chrome user data
+    user_data_dir = tempfile.mkdtemp()
+    options.add_argument(f"--user-data-dir={user_data_dir}")
 
-    elif browser_name.lower() == "firefox":
-        from selenium.webdriver.firefox.service import Service as FirefoxService
-        from selenium.webdriver.firefox.options import Options as FirefoxOptions
-        from webdriver_manager.firefox import GeckoDriverManager
-
-        options = FirefoxOptions()
-        options.add_argument("--start-maximized")
-        if headless:
-            options.add_argument("--headless")
-        driver = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()), options=options)
-    else:
-        raise Exception("Unsupported browser! Use 'chrome' or 'firefox'.")
-
-    driver.get("https://www.demoblaze.com/")
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
     driver.implicitly_wait(10)
     return driver
 
